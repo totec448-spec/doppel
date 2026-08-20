@@ -6,7 +6,7 @@ toolchain go1.25.13
 
 require (
 	github.com/coder/websocket v1.8.15
-	github.com/mattn/go-sqlite3 v1.14.48
+	github.com/mattn/go-sqlite3 v1.14.50
 	go.mau.fi/whatsmeow v0.0.0-20260814123134-0dcf1f50f4b1
 	golang.org/x/image v0.45.0
 	google.golang.org/protobuf v1.36.11
