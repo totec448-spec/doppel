@@ -9,7 +9,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.48
 	go.mau.fi/whatsmeow v0.0.0-20260814123134-0dcf1f50f4b1
 	golang.org/x/image v0.45.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 	modernc.org/sqlite v1.39.1
 )
 
