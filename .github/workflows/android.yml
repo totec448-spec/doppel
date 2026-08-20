@@ -1,0 +1,74 @@
+name: Android release gate
+
+# A pull request already runs through pull_request. Filtering push to the trunk
+# prevents the same branch commit from running this full gate twice.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: native-wa/go.mod
+          cache-dependency-path: native-wa/go.sum
+
+      - uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Verify release hygiene
+        shell: pwsh
+        run: ./scripts/verify-release-hygiene.ps1
+
+      - name: Test native bridge
+        working-directory: native-wa
+        run: go test ./...
+
+      - name: Vet native bridge
+        working-directory: native-wa
+        run: go vet ./...
+
+      # The native core is compiled into the shipped APK, so a known vulnerability
+      # in it or its dependencies is a vulnerability in the product rather than in
+      # a build tool. govulncheck reports only advisories whose affected symbols
+      # are actually reachable from this code, which is why it is allowed to fail
+      # the gate: a hit here is not noise. The tool itself is pinned, since an
+      # unpinned @latest would hand the release gate to whatever was published
+      # upstream that morning.
+      - name: Check native bridge for known vulnerabilities
+        working-directory: native-wa
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+          "$(go env GOPATH)/bin/govulncheck" ./...
+
+      # Two invocations on purpose. Lint's worker process holds on after
+      # :app:lintRelease and starves a unit-test task sharing the same build into
+      # a timeout that looks exactly like a hang. The README tells contributors
+      # not to combine them; CI has no business doing what the README forbids.
+      - name: Test Android
+        run: |
+          chmod +x gradlew
+          ./gradlew testDebugUnitTest --console=plain --no-daemon
+
+      - name: Lint Android
+        run: ./gradlew lintDebug lintRelease --console=plain --no-daemon
+
+      # Lint analyses the release variant but does not execute R8. Build the
+      # minified candidate here so consumer keep-rule or shrinker regressions are
+      # caught before a release tag. This debug-signed APK is discarded; the tag
+      # workflow alone owns distribution signing and publication.
+      - name: Build the minified release
+        run: ./gradlew :app:assembleRelease --console=plain --no-daemon

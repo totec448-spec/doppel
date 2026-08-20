@@ -1,0 +1,6 @@
+# The public repository is produced by exporting this directory with
+# `git archive`, so anything marked export-ignore here is excluded from the
+# published tree by the export itself rather than by remembering to delete it
+# afterwards. AGENTS.md is the in-repo working brief for coding agents: it is
+# useful during development and is deliberately not part of the release.
+AGENTS.md export-ignore

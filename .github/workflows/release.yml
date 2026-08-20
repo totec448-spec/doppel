@@ -1,0 +1,269 @@
+name: Release APK
+
+# Publishing an installable APK is the only reason this workflow exists. It is
+# separate from the regular gate because it needs the signing key. It repeats
+# every gate before signing so a tag can never bypass a failed branch check.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and attach the APK to"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: native-wa/go.mod
+          cache-dependency-path: native-wa/go.sum
+
+      - uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Verify release tag and source version
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag must be an exact vMAJOR.MINOR.PATCH value." >&2
+            exit 1
+          fi
+          if ! git show-ref --verify --quiet "refs/tags/$TAG"; then
+            echo "Release tag does not exist in this repository." >&2
+            exit 1
+          fi
+          version=$(sed -n 's/^[[:space:]]*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)
+          if [ "v$version" != "$TAG" ]; then
+            echo "Tag $TAG does not match app versionName $version." >&2
+            exit 1
+          fi
+
+      - name: Verify release hygiene
+        shell: pwsh
+        run: ./scripts/verify-release-hygiene.ps1
+
+      - name: Test native bridge
+        working-directory: native-wa
+        run: go test ./...
+
+      - name: Vet native bridge
+        working-directory: native-wa
+        run: go vet ./...
+
+      # Repeated from the branch gate on purpose, per this workflow's contract that a
+      # tag cannot bypass a check. A vulnerability disclosed between the last branch
+      # run and the tag would otherwise be published rather than caught.
+      - name: Check native bridge for known vulnerabilities
+        working-directory: native-wa
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+          "$(go env GOPATH)/bin/govulncheck" ./...
+
+      # app/libs/nativewa.aar is checked in so a clone can build the app without a Go
+      # toolchain, but a committed binary proves nothing about the source next to it:
+      # a reader cannot tell whether it was built from this native-wa/ or from
+      # something else entirely. The published APK therefore carries an archive this
+      # workflow built here, from this checkout, so the native half of a source-
+      # available release is as inspectable as the Kotlin half. The checked-in copy
+      # stays a developer convenience and is overwritten for the rest of this job.
+      - name: Rebuild the native archive from source
+        env:
+          GOFLAGS: -buildvcs=false
+          # Android requires 16 KB-page-size-compatible loads; the local build script
+          # passes the same flag, and dropping it here would ship a differently linked
+          # library than the one that was developed against.
+          CGO_LDFLAGS: -Wl,-z,max-page-size=16384
+        run: |
+          if [ -z "$ANDROID_NDK_HOME" ] || [ ! -d "$ANDROID_NDK_HOME" ]; then
+            echo "ANDROID_NDK_HOME is not set to an NDK; gomobile cannot cross-compile." >&2
+            exit 1
+          fi
+          # Exactly the x/mobile the module pins, never @latest. gomobile generates the
+          # JNI binding inside the shipped archive, so letting the generator float means
+          # the same source can produce a different binary on a different day.
+          mobile=$(sed -n 's|^[[:space:]]*golang\.org/x/mobile[[:space:]]\{1,\}\(v[^[:space:]]*\).*|\1|p' native-wa/go.mod | head -1)
+          if [ -z "$mobile" ]; then
+            echo "golang.org/x/mobile is not pinned in native-wa/go.mod; refusing to guess a version." >&2
+            exit 1
+          fi
+          echo "Using gomobile $mobile"
+          go install "golang.org/x/mobile/cmd/gomobile@$mobile"
+          # gomobile invokes gobind as a separate executable. Installing only the
+          # front-end works on machines that happen to have gobind already, but a
+          # clean runner fails with "gobind was not found". Pin both tools to the
+          # same module revision so the generated JNI surface stays reproducible.
+          go install "golang.org/x/mobile/cmd/gobind@$mobile"
+
+          # gomobile builds through a temporary module with a local replace directive and
+          # Go records that path in .go.buildinfo even under -trimpath. Staging the module
+          # source outside the checkout keeps the runner's workspace path out of the
+          # binary, matching what the local build script does with the Public profile.
+          staging=$(mktemp -d)/native-wa
+          mkdir -p "$staging"
+          cp native-wa/*.go native-wa/go.mod native-wa/go.sum "$staging/"
+          (
+            cd "$staging"
+            "$(go env GOPATH)/bin/gomobile" bind \
+              -target=android/arm64 \
+              -androidapi=28 \
+              -trimpath \
+              -ldflags="-s -w" \
+              -o "$GITHUB_WORKSPACE/app/libs/nativewa.aar" \
+              .
+          )
+          # gomobile writes a Java source sidecar next to the archive; the app compiles
+          # against classes.jar inside the AAR, so keeping it only creates a stale second
+          # generated artifact.
+          rm -f app/libs/nativewa-sources.jar
+          ls -l app/libs/nativewa.aar
+
+      # Re-run after the rebuild: the earlier pass inspected the committed archive, and
+      # it is the one built here that ships.
+      - name: Verify hygiene of the rebuilt archive
+        shell: pwsh
+        run: ./scripts/verify-release-hygiene.ps1
+
+      - name: Test Android
+        run: |
+          chmod +x gradlew
+          ./gradlew testDebugUnitTest --console=plain --no-daemon
+
+      - name: Lint Android
+        run: ./gradlew lintDebug lintRelease --console=plain --no-daemon
+
+      # The keystore is never in the repository and never in a build argument. It
+      # arrives as a secret, becomes a file for the length of this job, and is
+      # removed in the last step even when something above fails.
+      - name: Restore the signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "RELEASE_KEYSTORE_BASE64 is not set. See docs/SETUP.md for the four secrets this needs." >&2
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          chmod 600 "$RUNNER_TEMP/release.keystore"
+
+      - name: Build the signed release
+        env:
+          # Absolute on purpose: signingConfigs resolves a relative path against the
+          # app module, not the checkout root.
+          DOPPEL_RELEASE_KEYSTORE: ${{ runner.temp }}/release.keystore
+          DOPPEL_RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          DOPPEL_RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          DOPPEL_RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDistributionRelease --console=plain --no-daemon
+
+      # The Android debug key is a publicly known key. An APK carrying it lets
+      # anybody build an update that Android accepts as this app, so shipping one
+      # is worse than shipping nothing. assembleDistributionRelease already fails
+      # without credentials; this proves what actually came out.
+      #
+      # Rejecting the debug key alone is not enough: it only establishes that the
+      # APK was signed by *some* key that is not the public one. Android's update
+      # rule is identity of the signing certificate, so a different key — a wrong
+      # keystore, a rotated secret, a substituted one — produces an APK that
+      # existing installs cannot accept and that is not this app in any sense that
+      # matters. The expected fingerprint is therefore pinned and compared exactly.
+      # It is not a secret (every copy of the APK carries it), so it lives in a
+      # repository variable and may be printed.
+      - name: Verify the release signature
+        env:
+          EXPECTED_CERT_SHA256: ${{ vars.RELEASE_CERT_SHA256 }}
+        run: |
+          apk=app/build/outputs/apk/release/app-release.apk
+          apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
+          if [ -z "$apksigner" ]; then
+            echo "No apksigner in $ANDROID_HOME/build-tools; cannot verify the signature." >&2
+            exit 1
+          fi
+          certs=$("$apksigner" verify --print-certs "$apk")
+          if printf '%s\n' "$certs" | grep -q "CN=Android Debug"; then
+            echo "Refusing to publish: this APK is debug-signed." >&2
+            exit 1
+          fi
+
+          # apksigner prints one digest line per signature scheme; they describe the
+          # same certificate, so more than one distinct value means the APK carries
+          # more than one signing identity and the pin cannot speak for it.
+          observed=$(printf '%s\n' "$certs" \
+            | grep -Eio 'certificate SHA-256 digest: *[0-9a-fA-F]{64}' \
+            | grep -Eio '[0-9a-fA-F]{64}' \
+            | tr 'A-F' 'a-f' | sort -u)
+          if [ -z "$observed" ]; then
+            echo "Could not read a certificate fingerprint from apksigner output." >&2
+            exit 1
+          fi
+          if [ "$(printf '%s\n' "$observed" | wc -l)" -ne 1 ]; then
+            echo "Refusing to publish: the APK carries more than one signing certificate:" >&2
+            printf '%s\n' "$observed" >&2
+            exit 1
+          fi
+
+          expected=$(printf '%s' "$EXPECTED_CERT_SHA256" | tr -d ' :' | tr 'A-F' 'a-f')
+          if [ -z "$expected" ]; then
+            echo "Repository variable RELEASE_CERT_SHA256 is not set, so the signing" >&2
+            echo "certificate cannot be pinned and this release is not verifiable." >&2
+            echo "This build was signed by:" >&2
+            echo "  $observed" >&2
+            echo "If that is the intended release key, set RELEASE_CERT_SHA256 to it" >&2
+            echo "(Settings -> Secrets and variables -> Actions -> Variables) and re-run." >&2
+            exit 1
+          fi
+          if [ "$observed" != "$expected" ]; then
+            echo "Refusing to publish: unexpected signing certificate." >&2
+            echo "  expected: $expected" >&2
+            echo "  observed: $observed" >&2
+            exit 1
+          fi
+          echo "APK signature verified against the pinned release certificate."
+
+      - name: Name the artifact
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/doppel-$TAG.apk"
+          ( cd dist && sha256sum "doppel-$TAG.apk" > "doppel-$TAG.apk.sha256" )
+
+      # A release is created as a draft and only published once its assets are
+      # actually attached, so a failure between the two never leaves a visible
+      # release that promises a download it does not have.
+      #
+      # The upload deliberately does not pass --clobber. A published APK is
+      # something people have already downloaded and checksummed; replacing the
+      # bytes behind a tag that has been handed out is indistinguishable from an
+      # attack on anyone who verified the old ones. Re-running against an existing
+      # asset therefore fails, and re-cutting a release means a new tag.
+      - name: Attach it to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --verify-tag --draft --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" dist/*
+          gh release edit "$TAG" --draft=false
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.keystore"

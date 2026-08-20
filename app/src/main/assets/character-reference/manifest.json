@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "personas": [
+    {
+      "persona": "female",
+      "images": [
+        { "file": "female.jpg", "name": "Lina reference 1" }
+      ]
+    },
+    {
+      "persona": "male",
+      "images": [
+        { "file": "male.jpg", "name": "Jonas reference 1" }
+      ]
+    },
+    {
+      "persona": "goth",
+      "images": [
+        { "file": "goth.jpg", "name": "Nico reference 1" }
+      ]
+    },
+    {
+      "persona": "sam",
+      "images": [
+        { "file": "sam.jpg", "name": "Sam reference 1" }
+      ]
+    }
+  ]
+}

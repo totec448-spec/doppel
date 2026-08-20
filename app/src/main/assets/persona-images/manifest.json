@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "personas": [
+    {
+      "persona": "female",
+      "images": [
+        {
+          "file": "01_bathroom_mirror_selfie_navy_top_jeans.jpg",
+          "name": "Spiegelselfie im Bad, navy Top und Jeans"
+        },
+        {
+          "file": "02_bedroom_mirror_selfie_college_sweatshirt.jpg",
+          "name": "Spiegelselfie im Zimmer, College-Sweatshirt"
+        },
+        {
+          "file": "03_cafe_study_notebook_and_iced_coffee.jpg",
+          "name": "Lernen im Caf\u00e9, Block und Eiskaffee"
+        },
+        {
+          "file": "04_campus_restroom_mirror_selfie_red_hoodie.jpg",
+          "name": "Spiegelselfie Uni-WC, roter Hoodie"
+        },
+        {
+          "file": "05_cloudy_campus_building.jpg",
+          "name": "Uni-Geb\u00e4ude bei bew\u00f6lktem Himmel"
+        },
+        {
+          "file": "06_convenience_store_mirror_selfie_denim_jacket.jpg",
+          "name": "Spiegelselfie im Kiosk, Jeansjacke"
+        },
+        {
+          "file": "07_elevator_flash_selfie_green_bomber.jpg",
+          "name": "Blitz-Selfie im Aufzug, gr\u00fcne Bomberjacke"
+        },
+        {
+          "file": "08_gym_locker_room_mirror_selfie.jpg",
+          "name": "Spiegelselfie in der Gym-Umkleide"
+        },
+        {
+          "file": "09_hallway_elevator_mirror_selfie.jpg",
+          "name": "Spiegelselfie im Hausflur am Aufzug"
+        },
+        {
+          "file": "10_late_night_ramen_and_textbook.jpg",
+          "name": "Ramen und Lehrbuch sp\u00e4t nachts"
+        },
+        {
+          "file": "11_late_night_study_desk.jpg",
+          "name": "Schreibtisch sp\u00e4t nachts beim Lernen"
+        },
+        {
+          "file": "12_lecture_hall_selfie_beige_sweater.jpg",
+          "name": "Selfie im H\u00f6rsaal, beiger Pullover"
+        },
+        {
+          "file": "13_messy_bedroom_pajama_mirror_selfie.jpg",
+          "name": "Spiegelselfie im Schlafanzug, unordentliches Zimmer"
+        },
+        {
+          "file": "14_rainy_bus_window_selfie.jpg",
+          "name": "Selfie am Busfenster im Regen"
+        },
+        {
+          "file": "15_rainy_crosswalk_coffee_walk.jpg",
+          "name": "Regen an der Ampel, Kaffee to go"
+        },
+        {
+          "file": "16_residential_street_at_sunset.jpg",
+          "name": "Wohnstra\u00dfe im Sonnenuntergang"
+        },
+        {
+          "file": "17_sitting_in_park_campus_portrait.jpg",
+          "name": "Im Park auf dem Campus"
+        },
+        {
+          "file": "18_sitting_on_grass_sneakers_and_tote.jpg",
+          "name": "Auf der Wiese, Sneaker und Jutebeutel"
+        },
+        {
+          "file": "19_train_window_selfie_black_hoodie.jpg",
+          "name": "Selfie am Zugfenster, schwarzer Hoodie"
+        },
+        {
+          "file": "20_winter_street_selfie.jpg",
+          "name": "Winter-Selfie auf der Stra\u00dfe"
+        }
+      ]
+    }
+  ]
+}
