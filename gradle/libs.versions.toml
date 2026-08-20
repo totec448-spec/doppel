@@ -9,7 +9,7 @@ activityCompose = "1.13.0"
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
 coroutines = "1.10.2"
-okhttp = "4.12.0"
+okhttp = "5.5.0"
 json = "20251224"
 
 [libraries]
