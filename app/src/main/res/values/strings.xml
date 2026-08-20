@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Doppel</string>
+    <string name="bridge_service_description">Keeps the encrypted WhatsApp bridge connection active while the bot is running.</string>
+</resources>

@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "personas": [
+    {
+      "persona": "female",
+      "images": [
+        { "file": "1_zimmer_spiegelselfie.jpg" },
+        { "file": "2_aufzug_blitz.jpg" },
+        { "file": "3_hoersaal.jpg" }
+      ],
+      "about": [
+        "bin gleich wieder da",
+        "uni frisst mich",
+        "schreib einfach",
+        "hey there! I am using WhatsApp."
+      ]
+    },
+    {
+      "persona": "male",
+      "images": [
+        { "file": "1_wg_selfie.jpg" },
+        { "file": "2_hof_selfie.jpg" },
+        { "file": "3_zimmer_abends.jpg" }
+      ],
+      "about": [
+        "meld mich später",
+        "am arbeiten",
+        "Available",
+        "kein plan"
+      ]
+    },
+    {
+      "persona": "goth",
+      "images": [
+        { "file": "1_spiegelselfie.jpg" },
+        { "file": "2_club_bad.jpg" },
+        { "file": "3_nachtstrasse.jpg" }
+      ],
+      "about": [
+        "nachts wach",
+        "lieber nicht anrufen",
+        "bin unterwegs",
+        "Available"
+      ]
+    },
+    {
+      "persona": "sam",
+      "images": [
+        { "file": "1_auto.jpg" },
+        { "file": "2_balkon.jpg" },
+        { "file": "3_aufzug_spiegel.jpg" }
+      ],
+      "about": [
+        "schreib mir einfach",
+        "grad viel los",
+        "Available",
+        "bin da"
+      ]
+    }
+  ]
+}

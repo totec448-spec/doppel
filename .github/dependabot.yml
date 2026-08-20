@@ -1,0 +1,31 @@
+version: 2
+
+# This directory is the root of the published repository, so every path below is
+# relative to it rather than to the development monorepo.
+updates:
+  # The native WhatsApp core. This is the dependency that matters most: it is
+  # compiled into the shipped APK as libgojni.so, it speaks the wire protocol,
+  # and it is the one whose upstream moves fastest.
+  - package-ecosystem: gomod
+    directory: /native-wa
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "native-wa"
+
+  # Gradle plugins and Android/Kotlin libraries, declared through the version
+  # catalog in gradle/libs.versions.toml.
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # The workflows pin every action by commit SHA, which is what makes a tag move
+  # under us a non-event — and also what makes updates invisible without this.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

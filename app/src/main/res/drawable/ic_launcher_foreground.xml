@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Launcher foreground: a small machine looking back at you.
+
+    Not a speech bubble. Every other app on the phone that touches messaging is a speech bubble, so
+    the one shape guaranteed to be unrecognisable in a drawer full of them is that one. This is a
+    head: visor, two lit eyes with catchlights placed off-centre so they track the viewer, an
+    antenna, and a vent where a mouth would be.
+
+    The glow is stacked strokes of one path at falling alpha and rising width, because vector
+    drawables have no blur filter. Everything stays inside a radius of 33 from (54,54), which is
+    what an adaptive-icon mask cannot cut into — the antenna tip is the closest call at 28.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Antenna, drawn first so the head sits on top of its root. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M54,38 V28"
+        android:strokeColor="#7C8C85"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.4" />
+    <path
+        android:fillColor="#22F07C"
+        android:fillAlpha="0.20"
+        android:pathData="M54,25.5 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+    <path
+        android:fillColor="#5CFFA8"
+        android:pathData="M54,25.5 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0" />
+
+    <!-- Ear modules. -->
+    <path
+        android:fillColor="#1A2822"
+        android:pathData="M28,50 H32 V64 H28 C26.3,64 25,62.7 25,61 V53 C25,51.3 26.3,50 28,50 Z" />
+    <path
+        android:fillColor="#1A2822"
+        android:pathData="M80,50 H76 V64 H80 C81.7,64 83,62.7 83,61 V53 C83,51.3 81.7,50 80,50 Z" />
+    <path
+        android:fillColor="#22F07C"
+        android:fillAlpha="0.85"
+        android:pathData="M27,54 H30 V60 H27 Z" />
+    <path
+        android:fillColor="#22F07C"
+        android:fillAlpha="0.85"
+        android:pathData="M78,54 H81 V60 H78 Z" />
+
+    <!-- Cast shadow, dropped two units and faked out of stacked strokes at falling alpha. It used
+         to be one solid offset copy at 32% black, which was fine against the old near-black
+         background and is a hard second outline against white. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M44,40 H64 C70,40 76,46 76,52 V68 C76,74 70,80 64,80 H44 C38,80 32,74 32,68 V52 C32,46 38,40 44,40 Z"
+        android:strokeColor="#1B241F"
+        android:strokeAlpha="0.05"
+        android:strokeLineJoin="round"
+        android:strokeWidth="10" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M44,40 H64 C70,40 76,46 76,52 V68 C76,74 70,80 64,80 H44 C38,80 32,74 32,68 V52 C32,46 38,40 44,40 Z"
+        android:strokeColor="#1B241F"
+        android:strokeAlpha="0.08"
+        android:strokeLineJoin="round"
+        android:strokeWidth="5.5" />
+    <path
+        android:fillColor="#1B241F"
+        android:fillAlpha="0.10"
+        android:pathData="M44,40 H64 C70,40 76,46 76,52 V68 C76,74 70,80 64,80 H44 C38,80 32,74 32,68 V52 C32,46 38,40 44,40 Z" />
+
+    <!-- Outer bloom around the head. Halved against white: a glow is the difference between the
+         mark and the dark it sits in, and on paper the same alphas only smear green around it. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z"
+        android:strokeColor="#22F07C"
+        android:strokeAlpha="0.08"
+        android:strokeLineJoin="round"
+        android:strokeWidth="7" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z"
+        android:strokeColor="#22F07C"
+        android:strokeAlpha="0.18"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.5" />
+
+    <!-- The head: brushed dark metal, lit from the top left. -->
+    <path android:pathData="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="32"
+                android:startY="38"
+                android:endX="76"
+                android:endY="78">
+                <item android:offset="0" android:color="#FF223129" />
+                <item android:offset="0.5" android:color="#FF121B17" />
+                <item android:offset="1" android:color="#FF080D0B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Neon rim. -->
+    <path android:pathData="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeLineJoin="round"
+        android:strokeWidth="2">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="32"
+                android:startY="38"
+                android:endX="76"
+                android:endY="78">
+                <item android:offset="0" android:color="#FF9DFFCB" />
+                <item android:offset="0.45" android:color="#FF22F07C" />
+                <item android:offset="1" android:color="#FF0E8E4A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Specular streak across the forehead. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M43,41 H63"
+        android:strokeColor="#EAFFF4"
+        android:strokeAlpha="0.5"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.5" />
+
+    <!-- Visor: darker than the head so the eyes have depth to sit in. -->
+    <path
+        android:fillColor="#FF050907"
+        android:pathData="M43,48 H65 C68.3,48 71,50.7 71,54 V58 C71,61.3 68.3,64 65,64 H43 C39.7,64 37,61.3 37,58 V54 C37,50.7 39.7,48 43,48 Z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M43,48 H65 C68.3,48 71,50.7 71,54 V58 C71,61.3 68.3,64 65,64 H43 C39.7,64 37,61.3 37,58 V54 C37,50.7 39.7,48 43,48 Z"
+        android:strokeColor="#22F07C"
+        android:strokeAlpha="0.35"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1" />
+
+    <!-- Scanline across the visor. -->
+    <path
+        android:pathData="M37,56 H71"
+        android:strokeColor="#22F07C"
+        android:strokeAlpha="0.14"
+        android:strokeWidth="1" />
+
+    <!-- Eye glow. -->
+    <path
+        android:fillColor="#22F07C"
+        android:fillAlpha="0.35"
+        android:pathData="M47,56 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+    <path
+        android:fillColor="#22F07C"
+        android:fillAlpha="0.35"
+        android:pathData="M61,56 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+
+    <!-- Eyes. -->
+    <path
+        android:fillColor="#5CFFA8"
+        android:pathData="M47,56 m-3.6,0 a3.6,3.6 0 1,0 7.2,0 a3.6,3.6 0 1,0 -7.2,0" />
+    <path
+        android:fillColor="#5CFFA8"
+        android:pathData="M61,56 m-3.6,0 a3.6,3.6 0 1,0 7.2,0 a3.6,3.6 0 1,0 -7.2,0" />
+
+    <!-- Catchlights, both offset the same way — which is what makes a pair of dots into a gaze. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M45.7,54.7 m-1.4,0 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M59.7,54.7 m-1.4,0 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0" />
+
+    <!-- Vent, where a mouth would be. -->
+    <path
+        android:fillColor="#7C8C85"
+        android:fillAlpha="0.75"
+        android:pathData="M48,70 H60 V71.6 H48 Z" />
+    <path
+        android:fillColor="#7C8C85"
+        android:fillAlpha="0.5"
+        android:pathData="M50.5,73.4 H57.5 V74.8 H50.5 Z" />
+</vector>

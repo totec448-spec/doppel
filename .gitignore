@@ -1,0 +1,75 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Tool caches / scratch state (never source)
+/.gradle-user
+/.kotlin
+/gradle/gradle-daemon-jvm.properties
+/.go-build-cache
+/.go-module-cache
+/native-wa/.go-build-cache
+/native-wa/.go-module-cache
+/.go-tools
+/.gopath
+/.tmp
+/.tmp-go-cache
+/.tmp-go-path
+/.aar-inspect
+/native-wa/tmp-bind/
+/app/libs/nativewa-sources.jar
+/app/libs/nativewa-next-sources.jar
+
+# One-off device debugging dumps (uiautomator XML / screenshots)
+/*.xml
+/*.png
+
+# Operator identity terms the release-hygiene gate screens the tree for. Tracking this file
+# would publish the very names it protects, so it stays local by design.
+/scripts/private-identity.txt
+
+# Private runtime, operator, and release-signing material
+/data/
+/chat-exports/
+.env
+.env.*
+# The in-app export carries the runtime database and approved media: settings,
+# personas, memory, history, access lists. It must never be stageable.
+whatsapp-bot-backup-*.zip
+*.log
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.apk
+*.aab
+*.apks
+*.idsig
+*.bak
+*.backup
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+*.cer
+*.crt
+*.der
+/docs/evidence/*.png
+/docs/evidence/*.jpg
+/docs/evidence/*.jpeg
+**/screenshots/

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108" role="img" aria-label="Doppel icon">
+  <!--
+    The launcher icon as one flat file, so the README can show it without a build step.
+    Same geometry as res/drawable/ic_launcher_background_clean.xml and ic_launcher_foreground.xml.
+    Keep the two in step: this is a copy, not a source. That is also why the shadow here is stacked
+    strokes rather than an SVG blur filter — the Android vector format has no blur, and a softer
+    shadow in the README than on the phone would make this file a lie.
+  -->
+  <defs>
+    <clipPath id="squircle">
+      <rect x="0" y="0" width="108" height="108" rx="24" ry="24"/>
+    </clipPath>
+    <linearGradient id="paper" x1="14" y1="0" x2="94" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.55" stop-color="#FAFBFB"/>
+      <stop offset="1" stop-color="#F0F3F2"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx="54" cy="50" r="74" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#27312D" stop-opacity="0"/>
+      <stop offset="0.62" stop-color="#27312D" stop-opacity="0"/>
+      <stop offset="1" stop-color="#27312D" stop-opacity="0.08"/>
+    </radialGradient>
+    <radialGradient id="contact" cx="54" cy="72" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#222B27" stop-opacity="0.086"/>
+      <stop offset="0.5" stop-color="#222B27" stop-opacity="0.043"/>
+      <stop offset="1" stop-color="#222B27" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="32" y1="38" x2="76" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#223129"/>
+      <stop offset="0.5" stop-color="#121B17"/>
+      <stop offset="1" stop-color="#080D0B"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="32" y1="38" x2="76" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9DFFCB"/>
+      <stop offset="0.45" stop-color="#22F07C"/>
+      <stop offset="1" stop-color="#0E8E4A"/>
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#squircle)">
+    <rect width="108" height="108" fill="url(#paper)"/>
+    <rect width="108" height="108" fill="url(#vignette)"/>
+    <rect width="108" height="108" fill="url(#contact)"/>
+
+    <!-- Antenna. -->
+    <path d="M54,38 V28" stroke="#7C8C85" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+    <circle cx="54" cy="25.5" r="5" fill="#22F07C" fill-opacity="0.20"/>
+    <circle cx="54" cy="25.5" r="2.4" fill="#5CFFA8"/>
+
+    <!-- Ear modules. -->
+    <path d="M28,50 H32 V64 H28 C26.3,64 25,62.7 25,61 V53 C25,51.3 26.3,50 28,50 Z" fill="#1A2822"/>
+    <path d="M80,50 H76 V64 H80 C81.7,64 83,62.7 83,61 V53 C83,51.3 81.7,50 80,50 Z" fill="#1A2822"/>
+    <rect x="27" y="54" width="3" height="6" fill="#22F07C" fill-opacity="0.85"/>
+    <rect x="78" y="54" width="3" height="6" fill="#22F07C" fill-opacity="0.85"/>
+
+    <!-- Cast shadow, then the bloom, then the head itself. -->
+    <path d="M44,40 H64 C70,40 76,46 76,52 V68 C76,74 70,80 64,80 H44 C38,80 32,74 32,68 V52 C32,46 38,40 44,40 Z" fill="none" stroke="#1B241F" stroke-opacity="0.05" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M44,40 H64 C70,40 76,46 76,52 V68 C76,74 70,80 64,80 H44 C38,80 32,74 32,68 V52 C32,46 38,40 44,40 Z" fill="none" stroke="#1B241F" stroke-opacity="0.08" stroke-width="5.5" stroke-linejoin="round"/>
+    <path d="M44,40 H64 C70,40 76,46 76,52 V68 C76,74 70,80 64,80 H44 C38,80 32,74 32,68 V52 C32,46 38,40 44,40 Z" fill="#1B241F" fill-opacity="0.10"/>
+    <path d="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z" fill="none" stroke="#22F07C" stroke-opacity="0.08" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z" fill="none" stroke="#22F07C" stroke-opacity="0.18" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z" fill="url(#metal)"/>
+    <path d="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z" fill="none" stroke="url(#neon)" stroke-width="2" stroke-linejoin="round"/>
+
+    <path d="M43,41 H63" stroke="#EAFFF4" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Visor and eyes. -->
+    <path d="M43,48 H65 C68.3,48 71,50.7 71,54 V58 C71,61.3 68.3,64 65,64 H43 C39.7,64 37,61.3 37,58 V54 C37,50.7 39.7,48 43,48 Z" fill="#050907"/>
+    <path d="M43,48 H65 C68.3,48 71,50.7 71,54 V58 C71,61.3 68.3,64 65,64 H43 C39.7,64 37,61.3 37,58 V54 C37,50.7 39.7,48 43,48 Z" fill="none" stroke="#22F07C" stroke-opacity="0.35" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M37,56 H71" stroke="#22F07C" stroke-opacity="0.14" stroke-width="1"/>
+    <circle cx="47" cy="56" r="6.5" fill="#22F07C" fill-opacity="0.35"/>
+    <circle cx="61" cy="56" r="6.5" fill="#22F07C" fill-opacity="0.35"/>
+    <circle cx="47" cy="56" r="3.6" fill="#5CFFA8"/>
+    <circle cx="61" cy="56" r="3.6" fill="#5CFFA8"/>
+    <circle cx="45.7" cy="54.7" r="1.4" fill="#FFFFFF"/>
+    <circle cx="59.7" cy="54.7" r="1.4" fill="#FFFFFF"/>
+
+    <!-- Vent. -->
+    <rect x="48" y="70" width="12" height="1.6" fill="#7C8C85" fill-opacity="0.75"/>
+    <rect x="50.5" y="73.4" width="7" height="1.4" fill="#7C8C85" fill-opacity="0.5"/>
+  </g>
+</svg>

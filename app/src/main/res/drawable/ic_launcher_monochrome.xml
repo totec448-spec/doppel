@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Themed-icon version of the mark. One flat colour, tinted by the launcher, so none of the glow,
+    gradients or catchlights from the full icon survive here. What has to survive is the silhouette
+    being recognisably the same machine: head, visor, two eyes, antenna, ears.
+
+    The eyes are cut out of the visor rather than drawn on top of it, because at this size a lit eye
+    and an unlit one are the same shape unless one of them is a hole.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Antenna. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M54,38 V28"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.6" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,25.5 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+
+    <!-- Ears. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M28,50 H32 V64 H28 C26.3,64 25,62.7 25,61 V53 C25,51.3 26.3,50 28,50 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M80,50 H76 V64 H80 C81.7,64 83,62.7 83,61 V53 C83,51.3 81.7,50 80,50 Z" />
+
+    <!-- Head, drawn as an outline so the silhouette does not become one solid blob. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M44,38 H64 C70,38 76,44 76,50 V66 C76,72 70,78 64,78 H44 C38,78 32,72 32,66 V50 C32,44 38,38 44,38 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.4" />
+
+    <!--
+        Visor with the eyes punched through it. evenOdd is what makes the inner circles holes
+        instead of filled discs stacked on a filled bar.
+    -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M43,48 H65 C68.3,48 71,50.7 71,54 V58 C71,61.3 68.3,64 65,64 H43 C39.7,64 37,61.3 37,58 V54 C37,50.7 39.7,48 43,48 Z M47,56 m-3.4,0 a3.4,3.4 0 1,0 6.8,0 a3.4,3.4 0 1,0 -6.8,0 M61,56 m-3.4,0 a3.4,3.4 0 1,0 6.8,0 a3.4,3.4 0 1,0 -6.8,0" />
+
+    <!-- Vent. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M48,70 H60 V72 H48 Z" />
+</vector>
