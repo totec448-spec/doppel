@@ -36,7 +36,7 @@ and remembers what you told it three weeks ago.
   optional verifier can each incur provider charges.
 
 Current Android identity: application ID and namespace `de.totec.doppel`,
-version `1.0.0` (`versionCode` 1), minSdk 28, targetSdk 36, compileSdk 37.
+version `1.0.2` (`versionCode` 3), minSdk 28, targetSdk 36, compileSdk 37.
 
 ## Install
 
@@ -170,12 +170,15 @@ more. The defaults are picked for cost rather than for benchmark scores:
 
 | Job | Default model |
 | --- | --- |
-| Replies | `deepseek/deepseek-v4-pro-0813` |
+| Replies | `deepseek/deepseek-v4-flash-vision-exp` |
 | Verification | `deepseek/deepseek-v4-flash-0731` |
 | Incoming media analysis | `google/gemini-3.7-flash` |
 | Image generation | `openai/gpt-image-2` |
 | Audio transcription fallback | `openai/gpt-transcribe` |
 | Voice-note TTS | `google/gemini-3.1-flash-tts-preview` |
+
+Fresh installs let OpenRouter choose the provider automatically. The optional
+**Only use the model maker** setting disables provider fallback when enabled.
 
 The settings catalog allows other models, but compatibility is capability-
 dependent: not every model supports tools, media, image generation, structured

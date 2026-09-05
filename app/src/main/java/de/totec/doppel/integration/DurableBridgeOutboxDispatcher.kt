@@ -161,8 +161,12 @@ class DurableBridgeOutboxDispatcher(
             wake.trySend(Unit)
             return waiter.result.await()
         } finally {
-            if (waiter.callers.decrementAndGet() == 0 && !waiter.result.isCompleted) {
-                waiters.remove(dedupeKey, waiter)
+            // Serialize departure with registration: a new caller must never attach to a
+            // waiter between its last caller leaving and its removal from the map.
+            synchronized(lifecycleLock) {
+                if (waiter.callers.decrementAndGet() == 0) {
+                    waiters.remove(dedupeKey, waiter)
+                }
             }
         }
     }
@@ -431,7 +435,9 @@ class DurableBridgeOutboxDispatcher(
 
 internal fun String.toBridgeRequestId(): String {
     val safe = replace(Regex("[^A-Za-z0-9._:-]"), "_")
-    if (safe.length in 8..160) return safe
+    // Keep existing wire-safe IDs stable. Lossy replacement makes distinct keys collide
+    // (for example a/b and a?b), so hash the original whenever normalization changed it.
+    if (safe == this && safe.length in 8..160) return safe
     val digest =
         MessageDigest.getInstance("SHA-256")
             .digest(toByteArray(Charsets.UTF_8))

@@ -55,36 +55,17 @@ $env:TEMP = Join-Path $resolvedBuildRoot ".tmp"
 $env:TMP = $env:TEMP
 
 New-Item -ItemType Directory -Force -Path $env:GOPATH, $env:GOMODCACHE, $env:GOCACHE, $env:TEMP | Out-Null
-$checkedInGomobile = Join-Path $projectRoot ".go-tools\gomobile.exe"
-$gopathGomobile = Join-Path $env:GOPATH "bin\gomobile.exe"
-$gomobile = if (Test-Path -LiteralPath $checkedInGomobile) {
-    $checkedInGomobile
-} else {
-    $gopathGomobile
+# Install both generators from the module pin even when an older binary is present.
+# A cached gomobile/gobind pair must not silently survive a dependency update.
+$pinnedMobile = Select-String -LiteralPath (Join-Path $sourceModuleRoot "go.mod") -Pattern '^\s*golang\.org/x/mobile\s+(v\S+)' | Select-Object -First 1
+if (-not $pinnedMobile) { throw "golang.org/x/mobile is not pinned" }
+$mobileVersion = $pinnedMobile.Matches[0].Groups[1].Value
+foreach ($tool in @("gomobile", "gobind")) {
+    & (Join-Path $resolvedGo "bin\go.exe") install "golang.org/x/mobile/cmd/${tool}@$mobileVersion"
+    if ($LASTEXITCODE -ne 0) { throw "go install $tool failed with exit code $LASTEXITCODE" }
 }
-if (-not (Test-Path -LiteralPath $gomobile)) {
-    # Exactly the x/mobile the module already pins, never @latest. gomobile generates the JNI
-    # binding that ends up inside a checked-in, shipped AAR, so letting the generator float meant
-    # the same source could produce a different binary on a different day — and the first sign of
-    # it would be a crash in someone else's build.
-    $pinnedMobile =
-        Select-String -LiteralPath (Join-Path $sourceModuleRoot "go.mod") `
-            -Pattern '^\s*golang\.org/x/mobile\s+(v\S+)' |
-            Select-Object -First 1
-    if (-not $pinnedMobile) {
-        throw "golang.org/x/mobile is not pinned in native-wa/go.mod; refusing to guess a version"
-    }
-    $mobileVersion = $pinnedMobile.Matches[0].Groups[1].Value
-    & (Join-Path $resolvedGo "bin\go.exe") install "golang.org/x/mobile/cmd/gomobile@$mobileVersion"
-    if ($LASTEXITCODE -ne 0) {
-        throw "go install gomobile@$mobileVersion failed with exit code $LASTEXITCODE"
-    }
-    $gomobile = $gopathGomobile
-}
-if (-not (Test-Path -LiteralPath $gomobile)) {
-    throw "gomobile is unavailable after installation"
-}
-
+$env:PATH = (Join-Path $env:GOPATH "bin") + [IO.Path]::PathSeparator + $env:PATH
+$gomobile = Join-Path $env:GOPATH "bin\gomobile.exe"
 Push-Location $moduleRoot
 try {
     & $gomobile bind `

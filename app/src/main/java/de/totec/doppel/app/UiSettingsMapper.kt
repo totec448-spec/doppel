@@ -588,7 +588,7 @@ internal object UiSettingsMapper {
             BotSettingKeys.ENABLED to "Replies enabled",
             BotSettingKeys.MODEL to "Main model",
             BotSettingKeys.MEDIA_MODEL to "Media model (vision, STT & video)",
-            BotSettingKeys.FIRST_PARTY_PROVIDER_ONLY to "Prefer the model maker",
+            BotSettingKeys.FIRST_PARTY_PROVIDER_ONLY to "Only use the model maker",
             BotSettingKeys.VISION_ENABLED to "Understand images",
             BotSettingKeys.STT_ENABLED to "Understand voice messages",
             BotSettingKeys.VIDEO_ENABLED to "Understand videos",

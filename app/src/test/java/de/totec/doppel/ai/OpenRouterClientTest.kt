@@ -575,6 +575,39 @@ class OpenRouterClientTest {
         assertEquals("Erst überlegt.", result.reasoning)
     }
 
+    @Test
+    fun `truncated stream with null finish reason retries instead of sending partial answer`() = runBlocking {
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("data: {\"choices\":[{\"delta\":{\"content\":\"partial\"},\"finish_reason\":null}]}\n\n"))
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("data: {\"choices\":[{\"delta\":{\"content\":\"complete\"},\"finish_reason\":\"stop\"}]}\n\ndata: [DONE]\n\n"))
+        assertEquals("complete", client().complete(simpleRequest(stream = true)).content)
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test
+    fun `repeated truncated streams fail without returning partial tool arguments`() = runBlocking {
+        repeat(2) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+                .setBody("data: {\"choices\":[{\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"name\":\"send_image\",\"arguments\":\"{\"}}]},\"finish_reason\":null}]}\n\n"))
+        }
+        val error = runCatching { client().complete(simpleRequest(stream = true)) }.exceptionOrNull()
+        assertTrue(error is OpenRouterProtocolException)
+        assertEquals("incomplete_stream", (error as OpenRouterProtocolException).reasonCode)
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test
+    fun `broken streaming socket recovers once without exposing the first answer`() = runBlocking {
+        val delta = "data: {\"choices\":[{\"delta\":{\"content\":\"partial\"},\"finish_reason\":null}]}\n\n"
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody(delta.repeat(100)).setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY))
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("data: {\"choices\":[{\"delta\":{\"content\":\"complete\"}}]}\n\ndata: [DONE]\n\ndata: invalid-after-completion\n\n"))
+        assertEquals("complete", client().complete(simpleRequest(stream = true)).content)
+        assertEquals(2, server.requestCount)
+    }
+
     private fun client(
         httpClient: OkHttpClient = OkHttpClient(),
         observer: AiNetworkObserver = AiNetworkObserver.NONE,

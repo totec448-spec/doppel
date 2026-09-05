@@ -27,18 +27,22 @@ import org.junit.Test
 class RuntimeRestartPolicyTest {
     @Test
     fun `a healthy loop is joined and reported as stopped cleanly`() = runBlocking {
+        val started = CompletableDeferred<Unit>()
         val stopped = CompletableDeferred<Unit>()
         val job = launch(Dispatchers.Default) {
             try {
+                started.complete(Unit)
                 awaitCancellation()
             } finally {
                 stopped.complete(Unit)
             }
         }
 
+        // Cancellation before dispatch never enters finally. Wait until the loop exists.
+        withTimeout(2_000L) { started.await() }
         assertTrue(RuntimeRestartPolicy.cancelWithinDeadline(job, timeoutMs = 2_000L))
         assertTrue(job.isCompleted)
-        stopped.await()
+        withTimeout(2_000L) { stopped.await() }
     }
 
     /**

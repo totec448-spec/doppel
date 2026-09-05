@@ -54,6 +54,9 @@ func TestAmbiguityOnlyForRequestsThatReachedWhatsApp(t *testing.T) {
 		fmt.Errorf("media upload not found"),
 		fmt.Errorf("unsupported media kind"),
 		whatsmeow.ErrNotLoggedIn,
+		wireError(whatsmeow.ErrNotLoggedIn),
+		wireError(whatsmeow.ErrClientIsNil),
+		wireError(whatsmeow.ErrRecipientADJID),
 	}
 	for _, err := range preflight {
 		if ambiguousActionError(err) {

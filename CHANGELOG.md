@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.2 — 2026-09-05
+
+- Default new installations to DeepSeek V4 Flash Vision Exp with automatic
+  OpenRouter provider selection; saved operator choices remain intact.
+- Fix a concurrent outbox waiter removal race and release unused waiters when
+  returning already completed or rejected operations.
+- Prevent lossy request-ID normalization from aliasing different sends.
+- Reject incomplete AI streams, including null finish reasons and broken sockets,
+  with one bounded recovery attempt before any partial answer or tool can execute.
+- Preserve retryable native request IDs when WhatsApp rejects a send during local
+  logged-out/client/recipient preflight, before a stanza can be sent.
+- Add conversation search, clearer two-line previews, stable timestamp placement,
+  more row spacing and higher-contrast secondary text.
+- Update Android build tools, Compose, Kotlin, coroutines, OkHttp, test JSON,
+  Gradle, Go, whatsmeow and native dependencies to current stable releases/pins.
+- Update GitHub Actions to current immutable release commits. Rebuild both native
+  binding generators from the module pin, even when old executables are cached.
 ## 1.0.0 — 2026-08-14 — renamed to Doppel
 
 The version line restarts here. This release changes the application ID, so no

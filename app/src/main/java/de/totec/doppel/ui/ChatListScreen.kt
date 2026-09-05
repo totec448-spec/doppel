@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -127,12 +128,17 @@ fun ChatListScreen(
 ) {
     // Keyed on the roster. Per-row clocks live inside the few visible rows that actually display a
     // duration, so one countdown no longer recomposes the header, notices and whole lazy list.
+    var search by rememberSaveable { mutableStateOf("") }
+    val visibleRows = remember(rows, search) {
+        val query = search.trim()
+        rows.filter { query.isEmpty() || it.title.contains(query, ignoreCase = true) }
+    }
     val sections =
-        remember(rows) {
-            val live = rows.filter { it.activity != null }
+        remember(visibleRows) {
+            val live = visibleRows.filter { it.activity != null }
             ChatListSections(
-                active = live + rows.filter { it.activity == null && !it.quiet },
-                quiet = rows.filter { it.activity == null && it.quiet },
+                active = live + visibleRows.filter { it.activity == null && !it.quiet },
+                quiet = visibleRows.filter { it.activity == null && it.quiet },
             )
         }
     // One instant for every waiting row, because while the link is down that is genuinely
@@ -161,6 +167,17 @@ fun ChatListScreen(
             onToggleConnection = onToggleConnection,
             onSleepNow = onSleepNow,
         )
+        if (rows.isNotEmpty()) {
+            BotTextField(
+                value = search,
+                onValueChange = { search = it },
+                label = "Search conversations",
+                modifier = Modifier.padding(horizontal = ScreenPadding, vertical = 8.dp),
+                trailing = if (search.isNotEmpty()) {
+                    { TextButton(onClick = { search = "" }) { Text("Clear") } }
+                } else null,
+            )
+        }
         // A limit is a rule that is still in force, so it has no X: it is lifted in the setting
         // behind it and nowhere else, and the row says so instead of offering a close button that
         // would only hide the reason the bot is quiet.
@@ -216,6 +233,11 @@ fun ChatListScreen(
             }
             if (rows.isEmpty()) {
                 item(key = "empty") { EmptyRoster(tone == StatusTone.LIVE) }
+            } else if (visibleRows.isEmpty()) {
+                item(key = "no-matches") {
+                    Text("No matching conversations", color = TextMid,
+                        modifier = Modifier.padding(ScreenPadding))
+                }
             }
         }
     }
@@ -525,7 +547,7 @@ private fun ChatListRow(
     ) {
     Column(Modifier.fillMaxWidth()) {
         Row(
-            Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
+            Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Avatar(initial = row.initial, accent = row.accent, isGroup = row.isGroup)
@@ -565,9 +587,9 @@ private fun ChatListRow(
                                 ?: "No messages yet",
                         style = MaterialTheme.typography.bodySmall,
                         color = if (row.scheduledFollowUpAtMs != null) Waiting else if (row.preview.isBlank()) TextLow else TextMid,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false),
+                        modifier = Modifier.weight(1f),
                     )
                     if (row.scheduledFollowUpAtMs != null || row.preview.isNotBlank()) {
                         Spacer(Modifier.width(8.dp))

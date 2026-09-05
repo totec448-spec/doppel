@@ -36,9 +36,9 @@ internal val OutlineSoft = Color(0xFF333333)
 
 // ── Text ramp ────────────────────────────────────────────────────────────────
 internal val TextHigh = Color(0xFFFFFFFF)
-internal val TextMid = Color(0xFF8C8C8C)
+internal val TextMid = Color(0xFFA3A3A3)
 // Still visibly secondary, but no longer below readable contrast on Layer1.
-internal val TextLow = Color(0xFF7D7D7D)
+internal val TextLow = Color(0xFF909090)
 
 // ── Conversation ─────────────────────────────────────────────────────────────
 // The one place radius and brightness are spent. Everything else in the app is instrumentation

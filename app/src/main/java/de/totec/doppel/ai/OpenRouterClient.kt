@@ -262,6 +262,7 @@ object RetryClassifier {
             "missing_choice",
             "missing_message",
             "missing_stream_choice",
+            "incomplete_stream",
             "provider_error",
             "response_too_large",
         )
@@ -729,82 +730,98 @@ class OpenRouterClient(
         var provider: String? = null
         var finishReason: String? = null
         var sawChoice = false
+        var sawDone = false
         var responseCharacters = 0
-        while (!source.exhausted()) {
-            val line = source.readUtf8Line() ?: break
-            // Every line counts as life, including the blank separators and the `:` keepalive
-            // comments a provider sends while a reasoning model is still thinking. Ticking only on
-            // deltas would treat a deliberately idling-but-healthy stream as a stall.
-            onProgress?.invoke()
-            responseCharacters += line.length + 1
-            if (responseCharacters > MAX_RESPONSE_CHARACTERS) {
-                throw OpenRouterProtocolException("response_too_large")
-            }
-            if (!line.startsWith("data:")) continue
-            val data = line.substringAfter("data:").trim()
-            if (data.isEmpty() || data == "[DONE]") continue
-            val root = try {
-                JSONObject(data)
-            } catch (_: JSONException) {
-                throw OpenRouterProtocolException("invalid_sse_json")
-            }
-            if (root.has("error")) throw OpenRouterProtocolException("provider_error")
-            if (model == null) model = root.optString("model").takeIf(String::isNotBlank)
-            if (provider == null) provider = root.optString("provider").takeIf(String::isNotBlank)
-            parseUsage(root.optJSONObject("usage"))?.let { usage = it }
-            val choice = root.optJSONArray("choices")?.optJSONObject(0) ?: continue
-            sawChoice = true
-            choice.optString("finish_reason").takeIf(String::isNotBlank)?.let {
-                finishReason = it
-            }
-            val delta = choice.optJSONObject("delta") ?: continue
-            val answer = readContent(delta.opt("content"))
-            content.append(answer)
-            if (answer.isNotEmpty()) sink?.content(answer, clock.millis())
-            if (content.length > MAX_CONTENT_CHARACTERS) {
-                throw OpenRouterProtocolException("content_too_large")
-            }
-            // Providers that send the flat `reasoning` field also tend to repeat the whole thing in
-            // `reasoning_details` at the end of the stream. Once the flat form has been seen, the
-            // structured one is ignored, or the trace would read the same thought twice.
-            val flat = delta.opt("reasoning")
-            val thought = if (flat is String && flat.isNotEmpty()) {
-                sawFlatReasoning = true
-                flat
-            } else if (sawFlatReasoning) {
-                ""
-            } else {
-                readReasoning(delta)
-            }
-            if (thought.isNotEmpty()) {
-                if (reasoning.length < MAX_REASONING_CHARACTERS) reasoning.append(thought)
-                sink?.reasoning(thought, clock.millis())
-            }
-            val chunks = delta.optJSONArray("tool_calls") ?: continue
-            for (chunkIndex in 0 until chunks.length()) {
-                val chunk = chunks.optJSONObject(chunkIndex) ?: continue
-                val index = chunk.optInt("index", chunkIndex)
-                if (index !in 0 until MAX_TOOL_CALLS) {
-                    throw OpenRouterProtocolException("too_many_tool_calls")
+        try {
+            while (!source.exhausted()) {
+                val line = source.readUtf8Line() ?: break
+                // Every line counts as life, including the blank separators and the `:` keepalive
+                // comments a provider sends while a reasoning model is still thinking. Ticking only on
+                // deltas would treat a deliberately idling-but-healthy stream as a stall.
+                onProgress?.invoke()
+                responseCharacters += line.length + 1
+                if (responseCharacters > MAX_RESPONSE_CHARACTERS) {
+                    throw OpenRouterProtocolException("response_too_large")
                 }
-                val aggregate = toolCalls.getOrPut(index) { StreamingToolCall() }
-                chunk.optString("id").takeIf(String::isNotBlank)?.let { aggregate.id = it }
-                val function = chunk.optJSONObject("function")
-                function?.optString("name")?.takeIf(String::isNotBlank)?.let {
-                    aggregate.name = it
+                if (!line.startsWith("data:")) continue
+                val data = line.substringAfter("data:").trim()
+                if (data.isEmpty()) continue
+                if (data == "[DONE]") {
+                    sawDone = true
+                    break
                 }
-                function?.optString("arguments")
-                    ?.takeIf(String::isNotEmpty)
-                    ?.let {
-                        aggregate.arguments.append(it)
-                        if (aggregate.arguments.length > MAX_TOOL_ARGUMENT_CHARACTERS) {
-                            throw OpenRouterProtocolException("tool_arguments_too_large")
-                        }
+                val root = try {
+                    JSONObject(data)
+                } catch (_: JSONException) {
+                    throw OpenRouterProtocolException("invalid_sse_json")
+                }
+                if (root.has("error")) throw OpenRouterProtocolException("provider_error")
+                if (model == null) model = root.optString("model").takeIf(String::isNotBlank)
+                if (provider == null) provider = root.optString("provider").takeIf(String::isNotBlank)
+                parseUsage(root.optJSONObject("usage"))?.let { usage = it }
+                val choice = root.optJSONArray("choices")?.optJSONObject(0) ?: continue
+                sawChoice = true
+                (choice.opt("finish_reason") as? String)?.takeIf(String::isNotBlank)?.let {
+                    finishReason = it
+                }
+                val delta = choice.optJSONObject("delta") ?: continue
+                val answer = readContent(delta.opt("content"))
+                content.append(answer)
+                if (answer.isNotEmpty()) sink?.content(answer, clock.millis())
+                if (content.length > MAX_CONTENT_CHARACTERS) {
+                    throw OpenRouterProtocolException("content_too_large")
+                }
+                // Providers that send the flat `reasoning` field also tend to repeat the whole thing in
+                // `reasoning_details` at the end of the stream. Once the flat form has been seen, the
+                // structured one is ignored, or the trace would read the same thought twice.
+                val flat = delta.opt("reasoning")
+                val thought = if (flat is String && flat.isNotEmpty()) {
+                    sawFlatReasoning = true
+                    flat
+                } else if (sawFlatReasoning) {
+                    ""
+                } else {
+                    readReasoning(delta)
+                }
+                if (thought.isNotEmpty()) {
+                    if (reasoning.length < MAX_REASONING_CHARACTERS) reasoning.append(thought)
+                    sink?.reasoning(thought, clock.millis())
+                }
+                val chunks = delta.optJSONArray("tool_calls") ?: continue
+                for (chunkIndex in 0 until chunks.length()) {
+                    val chunk = chunks.optJSONObject(chunkIndex) ?: continue
+                    val index = chunk.optInt("index", chunkIndex)
+                    if (index !in 0 until MAX_TOOL_CALLS) {
+                        throw OpenRouterProtocolException("too_many_tool_calls")
                     }
+                    val aggregate = toolCalls.getOrPut(index) { StreamingToolCall() }
+                    chunk.optString("id").takeIf(String::isNotBlank)?.let { aggregate.id = it }
+                    val function = chunk.optJSONObject("function")
+                    function?.optString("name")?.takeIf(String::isNotBlank)?.let {
+                        aggregate.name = it
+                    }
+                    function?.optString("arguments")
+                        ?.takeIf(String::isNotEmpty)
+                        ?.let {
+                            aggregate.arguments.append(it)
+                            if (aggregate.arguments.length > MAX_TOOL_ARGUMENT_CHARACTERS) {
+                                throw OpenRouterProtocolException("tool_arguments_too_large")
+                            }
+                        }
+                }
             }
+        } catch (error: IOException) {
+            if (error is OpenRouterProtocolException) throw error
+            // No returned completion means no tool or message has been dispatched yet.
+            // Treat a broken socket like premature EOF, with the same one-retry budget.
+            if (!sawDone && finishReason == null) throw OpenRouterProtocolException("incomplete_stream")
+            throw error
         }
         sink?.flush()
         if (!sawChoice) throw OpenRouterProtocolException("missing_stream_choice")
+        // EOF is not a completion boundary. Never deliver a truncated answer or execute
+        // partial tool arguments; the existing protocol budget permits one fresh attempt.
+        if (!sawDone && finishReason == null) throw OpenRouterProtocolException("incomplete_stream")
         return CompletionResult(
             content = content.toString(),
             toolCalls = toolCalls.entries.map { (index, call) ->

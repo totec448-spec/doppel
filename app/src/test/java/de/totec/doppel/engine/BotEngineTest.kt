@@ -757,7 +757,9 @@ class BotEngineTest {
     fun `failed optional self edit cannot duplicate or fail the sent reply`() = runBlocking {
         val ai =
             RecordingAi(
-                output = { TurnOutput(bubbles = listOf("ausserordentliches wort")) },
+                // No identical adjacent letters: swapping the "ss" in the former
+                // fixture could legitimately produce no typo, so no edit was attempted.
+                output = { TurnOutput(bubbles = listOf("wunderbares wort")) },
             )
         val store = FakeEngineStore()
         val whatsapp =

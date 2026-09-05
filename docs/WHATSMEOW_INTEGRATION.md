@@ -3,10 +3,10 @@
 ## Upstream boundary
 
 The app consumes `go.mau.fi/whatsmeow` at
-`v0.0.0-20260814123134-0dcf1f50f4b1`. There is no vendored whatsmeow tree, fork,
+`v0.0.0-20260904121843-28bfe537ea6a`. There is no vendored whatsmeow tree, fork,
 patch file, or `replace` directive. No upstream whatsmeow source file has been
 modified. The exact MPL-2.0 source is available at
-https://github.com/tulir/whatsmeow/tree/0dcf1f50f4b1.
+https://github.com/tulir/whatsmeow/tree/28bfe537ea6a.
 
 Everything under `native-wa/` is the app-owned adapter around that dependency.
 It is compiled with gomobile into `app/libs/nativewa.aar`; Kotlin never embeds a

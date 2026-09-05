@@ -29,14 +29,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
           distribution: temurin
           java-version: "21"
 
-      - uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       # The emulator needs hardware acceleration to boot in minutes rather than not
       # at all. The runner exposes /dev/kvm but not to the build user by default.
@@ -51,7 +51,12 @@ jobs:
       # licence for that image fails the setup task rather than the test — a failure
       # that reads like a broken migration and is not one.
       - name: Accept the system image licence
-        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+        run: |
+          # yes exits with SIGPIPE when sdkmanager finishes. Preserve sdkmanager's
+          # result instead of failing a successful acceptance under bash pipefail.
+          set +o pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          exit "${PIPESTATUS[1]}"
 
       - name: Run the database migration test
         run: |
@@ -62,7 +67,7 @@ jobs:
 
       - name: Keep the report when it fails
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: migration-test-report
           path: |

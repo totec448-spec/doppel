@@ -204,7 +204,7 @@ object BotSettingsSchema {
             ),
             model(
                 BotSettingKeys.MODEL,
-                "deepseek/deepseek-v4-pro-0813",
+                "deepseek/deepseek-v4-flash-vision-exp",
                 "OpenRouter model used for ordinary replies.",
                 SettingTier.BASIC,
                 ModelRole.MAIN,
@@ -293,7 +293,7 @@ object BotSettingsSchema {
             ),
             bool(
                 BotSettingKeys.FIRST_PARTY_PROVIDER_ONLY,
-                true,
+                false,
                 "Applies to every OpenRouter request: replies, checks, memory and media. It pins " +
                     "the company that built the selected model and disables provider fallback, " +
                     "so the request fails instead of silently moving to another host.",

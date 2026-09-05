@@ -85,6 +85,11 @@ func wireError(err error) error {
 	if err == nil {
 		return nil
 	}
+	// SendMessage returns these before allocating/sending a stanza. A link that
+	// logs out between preflight and SendMessage must not poison the durable ID.
+	if errors.Is(err, whatsmeow.ErrNotLoggedIn) || errors.Is(err, whatsmeow.ErrClientIsNil) || errors.Is(err, whatsmeow.ErrRecipientADJID) {
+		return err
+	}
 	return wireContactedError{err: err}
 }
 

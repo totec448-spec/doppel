@@ -33,8 +33,8 @@ android {
         // Doppel starts its own version line. The rename changed the application ID, so no
         // installed copy of the old build can upgrade into this one and no version code has to
         // stay monotonic across the two.
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

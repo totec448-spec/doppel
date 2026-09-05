@@ -339,7 +339,7 @@ class SettingsSchemaTest {
         val EXPECTED_ENCODED_DEFAULTS =
             linkedMapOf(
                 BotSettingKeys.ENABLED to "true",
-                BotSettingKeys.MODEL to "deepseek/deepseek-v4-pro-0813",
+                BotSettingKeys.MODEL to "deepseek/deepseek-v4-flash-vision-exp",
                 BotSettingKeys.MEDIA_MODEL to "google/gemini-3.7-flash",
                 BotSettingKeys.IMAGE_ANALYSIS_PROMPT to DefaultMediaAnalysisPrompts.IMAGE,
                 BotSettingKeys.VIDEO_ANALYSIS_PROMPT to DefaultMediaAnalysisPrompts.VIDEO,
@@ -353,7 +353,7 @@ class SettingsSchemaTest {
                         "iPhone gallery: casual framing, available light, slight motion blur or missed focus, " +
                         "visible grain and compression, imperfect exposure and white balance, natural skin " +
                         "texture, no studio polish, no cinematic grading, and no influencer aesthetic.",
-                BotSettingKeys.FIRST_PARTY_PROVIDER_ONLY to "true",
+                BotSettingKeys.FIRST_PARTY_PROVIDER_ONLY to "false",
                 BotSettingKeys.VISION_ENABLED to "true",
                 BotSettingKeys.STT_ENABLED to "true",
                 BotSettingKeys.VIDEO_ENABLED to "true",

@@ -10,12 +10,12 @@ are pinned in `native-wa/go.mod` and `native-wa/go.sum`.
 - Project: https://github.com/tulir/whatsmeow
 - Package: `go.mau.fi/whatsmeow`
 - Pinned revision:
-  `v0.0.0-20260814123134-0dcf1f50f4b1`
+  `v0.0.0-20260904121843-28bfe537ea6a`
 - License: Mozilla Public License 2.0
 - Exact upstream source:
-  https://github.com/tulir/whatsmeow/tree/0dcf1f50f4b1
+  https://github.com/tulir/whatsmeow/tree/28bfe537ea6a
 - Upstream license:
-  https://github.com/tulir/whatsmeow/blob/0dcf1f50f4b1/LICENSE
+  https://github.com/tulir/whatsmeow/blob/28bfe537ea6a/LICENSE
 
 The upstream whatsmeow package is consumed as a dependency without source
 modification or a local `replace` directive. The application-specific glue,
