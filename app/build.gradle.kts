@@ -52,6 +52,9 @@ android {
 
     buildTypes {
         release {
+            // Compose ships other ABIs, but the embedded WhatsApp core is arm64 only.
+            // Advertising those partial ABIs lets Android install an unusable app.
+            ndk.abiFilters += "arm64-v8a"
             // Local direct installs keep the existing debug signature so adb can upgrade
             // in place. Public distribution must use assembleDistributionRelease, which
             // fails closed unless all protected signing variables are supplied.

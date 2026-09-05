@@ -2,6 +2,8 @@
 
 ## 1.0.2 — 2026-09-05
 
+- Restrict the distribution APK to arm64, matching the embedded WhatsApp core,
+  so partial UI-only native libraries cannot advertise unsupported architectures.
 - Default new installations to DeepSeek V4 Flash Vision Exp with automatic
   OpenRouter provider selection; saved operator choices remain intact.
 - Fix a concurrent outbox waiter removal race and release unused waiters when

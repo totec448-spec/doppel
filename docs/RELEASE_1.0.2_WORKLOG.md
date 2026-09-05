@@ -87,3 +87,8 @@ as test traffic.
   whitespace validation passed. GitHub main has no intervening source commits.
 - Local verification complete; the source commit is pushed for the branch and
   managed-device migration gates before tagging the signed distribution release.
+- APK manifest inspection found a packaging defect: Compose contributed other
+  ABIs while libgojni exists only for arm64. Restricted release/diagnostic ABI
+  packaging to arm64; debug remains suitable for x86 database instrumentation.
+  Superseded the initial CI runs before tagging and revalidated packaging.
+- Rebuilt APK manifest now reports version 1.0.2/code 3 and only arm64-v8a.
