@@ -10,7 +10,7 @@ require (
 	go.mau.fi/whatsmeow v0.0.0-20260904121843-28bfe537ea6a
 	golang.org/x/image v0.45.0
 	google.golang.org/protobuf v1.36.12
-	modernc.org/sqlite v1.58.0
+	modernc.org/sqlite v1.59.0
 )
 
 require (
